@@ -1,0 +1,29 @@
+{
+    "name": "bchubb-web/webmaster",
+    "description": "Website builder, the right way",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/",
+            "Webmaster\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Billy Chubb",
+            "email": "billy@bchubb.co.uk"
+        }
+    ],
+    "require": {
+        "twig/twig": "^3.21",
+        "doctrine/dbal": "^4.3",
+        "doctrine/orm": "^3.5",
+        "symfony/routing": "^7.3",
+        "league/container": "^5.1",
+        "php-di/php-di": "^7.1",
+        "league/config": "^1.2",
+        "monolog/monolog": "^3.9",
+        "nyholm/psr7": "^1.8",
+        "nyholm/psr7-server": "^1.1"
+    }
+}
