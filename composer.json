@@ -20,10 +20,18 @@
         "doctrine/orm": "^3.5",
         "symfony/routing": "^7.3",
         "league/container": "^5.1",
-        "php-di/php-di": "^7.1",
         "league/config": "^1.2",
         "monolog/monolog": "^3.9",
         "nyholm/psr7": "^1.8",
-        "nyholm/psr7-server": "^1.1"
+        "nyholm/psr7-server": "^1.1",
+        "symfony/cache": "^7.3",
+        "predis/predis": "^3.2",
+        "relay/relay": "^3.0",
+        "psr/http-server-handler": "^1.0",
+        "middlewares/debugbar": "^2.2",
+        "symfony/event-dispatcher": "^7.3"
+    },
+    "require-dev": {
+        "php-debugbar/php-debugbar": "^2.2"
     }
 }

@@ -1,0 +1,11 @@
+<sitemap>
+    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+        <url>
+            <loc>https://d3r.com/</loc>
+            <priority>0.7</priority>
+        </url>
+    </urlset>
+    <routes>
+        <route name="homepage" method="getXml"/>
+    </routes>
+</sitemap>

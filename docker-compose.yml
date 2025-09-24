@@ -3,6 +3,7 @@ services:
     build: .
     ports:
       - "8080:80"
+      # - "9003:9003" # Xdebug port
     environment:
       DEP_ENV: local
       SITE_URL: site.webmaster.orb.local

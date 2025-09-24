@@ -18,6 +18,8 @@ RUN apt-get update && apt-get install -y \
     libjpeg-dev \
     zip \
     unzip
+    # && pecl install xdebug \
+    # && docker-php-ext-enable xdebug
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -32,6 +34,8 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Copy the rest of your app's source code
 COPY . .
+
+# COPY ./xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 RUN composer install --no-scripts --no-autoloader
 

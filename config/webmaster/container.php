@@ -2,21 +2,26 @@
 
 declare(strict_types=1);
 
+use \DebugBar\DataCollector as Collector;
+use League\Config\Configuration;
 use League\Container\Container;
+use League\Container\Argument\Literal\IntegerArgument;
+use League\Container\Argument\Literal\StringArgument;
 use League\Container\ReflectionContainer;
-use League\Container\Argument\Literal\ArrayArgument as ArrayArg;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Symfony\Component\Cache\Adapter\RedisAdapter;
 use Twig\Loader\FilesystemLoader;
 use Twig\RuntimeLoader\ContainerRuntimeLoader;
 
 
 use Twig\Environment;
 use Twig\Loader\LoaderInterface;
+use Webmaster\Debug\DebugBar;
 
-return function (): Container {
+return function (Configuration $config): Container {
     $container = new Container(defaultToOverwrite: true);
 
     $container->delegate(new ReflectionContainer(cacheResolutions: true));
@@ -27,10 +32,14 @@ return function (): Container {
         ->addArgument(Container::class)
     ;
 
+    $container->addShared(Configuration::class, $config);
+
     // Register core services here
-    configuration($container);
     twig($container);
     http($container);
+    cache($container);
+    debug($container);
+    events($container);
 
     return $container;
 };
@@ -52,14 +61,10 @@ function twig(Container $container): Container
     ;
 
     $container
-        ->addShared(LoaderInterface::class, function (array $config) {
-            return new FilesystemLoader($config['load_from']);
+        ->addShared(LoaderInterface::class, function (Configuration $config) {
+            return new FilesystemLoader($config->get('view.load_from', []));
         })
-        ->addArgument(new ArrayArg([
-            'load_from' => [
-                __DIR__ . '/../../views',
-            ],
-        ]))
+        ->addArgument(Configuration::class)
     ;
 
     return $container;
@@ -132,15 +137,87 @@ function http(Container $container): Container
         ->addArgument(Nyholm\Psr7\Factory\Psr17Factory::class)
     ;
 
+    $container
+        ->addShared(
+            Relay\RelayBuilder::class,
+        )
+    ;
+
     return $container;
 }
 
-function configuration(Container $container): Container
+function cache(Container $container): Container
 {
     $container
-        ->addShared('config', function () {
-            return require __DIR__ . '/config.php';
-        })
+        ->addShared(
+            \Predis\ClientInterface::class,
+            fn () => RedisAdapter::createConnection(
+                'redis://redis:6379',
+                [ 'class' => \Predis\Client::class, ]
+            )
+        )
+    ;
+
+    $container
+        ->addShared(RedisAdapter::class)
+        ->addArgument(\Predis\ClientInterface::class)
+        ->addArgument(new StringArgument('webmaster'))
+        ->addArgument(new IntegerArgument(3600))
+    ;
+
+    return $container;
+}
+
+function debug(Container $container): Container
+{
+    $container
+        ->addShared(
+            DebugBar::class,
+        )
+    ;
+
+    foreach ([
+        Collector\MessagesCollector::class,
+        Collector\TimeDataCollector::class,
+        Collector\RequestDataCollector::class,
+        Collector\MemoryCollector::class,
+        Collector\PhpInfoCollector::class,
+        Collector\ExceptionsCollector::class,
+    ] as $collector) {
+        $container->addShared($collector);
+
+        $container
+            ->extend(DebugBar::class)
+            ->addMethodCall('addCollector', [$collector])
+        ;
+    }
+
+
+    $container
+        ->addShared(
+            \Middlewares\Debugbar::class,
+        )
+        ->addArgument(DebugBar::class)
+        ->addArgument(Psr\Http\Message\ResponseFactoryInterface::class)
+        ->addArgument(Psr\Http\Message\StreamFactoryInterface::class)
+        ->addMethodCall('inline')
+    ;
+    return $container;
+}
+function events(Container $container): Container
+{
+    $container
+        ->addShared(
+            Symfony\Component\EventDispatcher\EventDispatcher::class,
+        )
+    ;
+
+    $container
+        ->addShared(
+            Psr\EventDispatcher\EventDispatcherInterface::class,
+            fn ($dispatcher) => $dispatcher,
+        )
+        ->addArgument(Symfony\Component\EventDispatcher\EventDispatcher::class)
     ;
 
     return $container;

@@ -6,5 +6,7 @@ namespace Webmaster\Entrypoint;
 
 interface EntrypointInterface
 {
-    public function handle(): void;
+    public function handle(): int;
+
+    public function getCore(): \Webmaster\Core;
 }

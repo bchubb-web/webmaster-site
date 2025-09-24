@@ -18,6 +18,7 @@ class Homepage
         return $this
             ->responseFactory
             ->createResponse(200)
+            ->withHeader('Content-Type', 'text/html')
             ->withBody($this->view->stream('index.twig'))
         ;
     }

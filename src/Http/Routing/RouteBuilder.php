@@ -4,14 +4,20 @@ declare(strict_types=1);
 
 namespace Webmaster\Http\Routing;
 
+use DebugBar\DataCollector\TimeDataCollector;
 use Symfony\Component\Routing\RouteCollection;
+use Webmaster\Http\Routing\Cache\RedisCache;
 
 class RouteBuilder
 {
-    public function __construct(
-        protected RouteCollection $routes,
-    ) {
+    // compiled routes
+    protected array $routes = [];
 
+    public function __construct(
+        protected readonly RedisCache $cache,
+        protected readonly RouteCollection $rawRoutes,
+        protected readonly TimeDataCollector $timeline,
+    ) {
     }
 
     public function add(
@@ -33,7 +39,7 @@ class RouteBuilder
             $methods,
         );
 
-        $this->routes->add(
+        $this->rawRoutes->add(
             $name ?? spl_object_id($route),
             $route
         );
@@ -52,12 +58,24 @@ class RouteBuilder
                 $loader($this);
             }
         }
+
+        $this->cache->set($this->rawRoutes);
+        $this->routes = $this->cache->get();
+
     }
 
-    public function getRoutes(): RouteCollection
+    public function getRoutes(): array
     {
-        if (0 === $this->routes->count()) {
-            $this->build();
+        $start = microtime(true);
+        if (0 === count($this->routes)) {
+            if (null === $cached = $this->cache->get()) {
+                $this->build();
+                $this->timeline->addMeasure('Build routes', $start, microtime(true));
+            } else {
+                $this->routes = $cached;
+                $this->timeline->addMeasure('Retrieve cached routes', $start, microtime(true));
+
+            }
         }
         return $this->routes;
     }

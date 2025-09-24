@@ -8,6 +8,7 @@ use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\StreamInterface;
 use Twig\Environment;
 use Twig\Loader\LoaderInterface;
+use DebugBar\DataCollector\TimeDataCollector;
 
 class SimpleRenderer
 {
@@ -16,15 +17,21 @@ class SimpleRenderer
         private readonly LoaderInterface $loader,
         private readonly StreamFactoryInterface $streamFactory,
         private readonly ResponseFactoryInterface $responseFactory,
+        private readonly TimeDataCollector $timeline,
     ) {
     }
     public function render(string $template, array $data = []): string
     {
+        $this->timeline->startMeasure("rendering-$template", "Rendering $template");
         if (!$this->loader->exists($template)) {
             throw new \RuntimeException("Template '$template' not found.");
         }
 
-        return $this->twig->render($template, $data);
+        $output = $this->twig->render($template, $data);
+
+        $this->timeline->stopMeasure("rendering-$template");
+
+        return $output;
     }
 
     public function stream(string $template, array $data = []): StreamInterface

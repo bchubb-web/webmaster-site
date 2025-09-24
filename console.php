@@ -1,16 +1,22 @@
 <?php
 
-use Webmaster\Entrypoint\Console;
-
+require_once __DIR__ . '/config/constants.php';
 require_once __DIR__ . '/vendor/autoload.php';
 
-$containerBuilder = require_once __DIR__ . '/config/container.php';
+$configInit = require_once ROOT . '/config/webmaster/config.php';
+$config = $configInit();
 
-/** @var \Psr\Container\ContainerInterface $container */
-$container = $containerBuilder();
+$userConfig = require_once ROOT . '/config/config.php';
+$config = $userConfig($config);
 
-$app = $container->get(Console::class);
+// core container
+$containerInit = require_once ROOT . '/config/webmaster/container.php';
+$container = $containerInit($config);
 
-$app->handle();
+// site dependencies
+$definitions = require_once ROOT . '/config/container.php';
+$container = $definitions($container);
 
-echo 'Hello, World!';
+$app = $container->get(\Webmaster\Entrypoint\Console::class);
+
+exit($app->handle());

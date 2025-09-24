@@ -1,16 +1,12 @@
 <?php
 
-declare(strict_types=1);
-
-use League\Container\Container;
-
-return function (Container $container) {
-    $queue = $container->get('League\Tactician\CommandBus');
-    $queue->before('Webmaster\Middleware\SessionMiddleware');
-    $queue->before('Webmaster\Middleware\CsrfMiddleware');
-    $queue->before('Webmaster\Middleware\RouterMiddleware', [
-        'router' => $container->get('Symfony\Component\Routing\Router'),
-    ]);
-    $queue->before('Webmaster\Middleware\ControllerMiddleware', [
-    return $queue;
+return function ($queueBuilder): void {
+    $queueBuilder
+        ->add(\App\Middleware\ExampleMiddleware::class);
+    $queueBuilder->before(\App\Middleware\ExampleMiddleware::class, \App\Middleware\AnotherMiddleware::class);
+    $queueBuilder->after(\App\Middleware\ExampleMiddleware::class, \App\Middleware\YetAnotherMiddleware::class);
+    $queueBuilder->remove(\App\Middleware\ExampleMiddleware::class);
+    $queueBuilder->prepend(\App\Middleware\PrependedMiddleware::class);
+    $queueBuilder->append(\App\Middleware\AppendedMiddleware::class);
+    $queueBuilder->clear();
 };
