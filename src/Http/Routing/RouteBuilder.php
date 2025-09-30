@@ -49,7 +49,7 @@ class RouteBuilder
 
     public function build(): void
     {
-        $routesFile = dirname(__DIR__, 3) . '/config/router.php';
+        $routesFile = dirname(__DIR__, 3) . '/config/routes.php';
 
         if (file_exists($routesFile)) {
             $loader = require $routesFile;
@@ -78,5 +78,10 @@ class RouteBuilder
             }
         }
         return $this->routes;
+    }
+
+    public function getGeneratorRoutes(): ?array
+    {
+        return $this->cache->getGeneratorRoutes();
     }
 }

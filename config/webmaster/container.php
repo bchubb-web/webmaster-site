@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Symfony\Component\Routing\Generator\CompiledUrlGenerator;
+use Webmaster\Http\Routing\Cache\RedisCache;
 use \DebugBar\DataCollector as Collector;
 use League\Config\Configuration;
 use League\Container\Container;
@@ -141,6 +143,19 @@ function http(Container $container): Container
         ->addShared(
             Relay\RelayBuilder::class,
         )
+    ;
+
+    $container
+        ->add(
+            CompiledUrlGenerator::class,
+            function (RedisCache $cache) {
+                return new CompiledUrlGenerator(
+                    $cache->getGeneratorRoutes() ?? [],
+                    new Symfony\Component\Routing\RequestContext()
+                );
+            }
+        )
+        ->addArgument(RedisCache::class)
     ;
 
     return $container;

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Webmaster\Http\Routing\Cache;
 
 use Symfony\Component\Cache\Adapter\RedisAdapter;
+use Symfony\Component\Routing\Generator\Dumper\CompiledUrlGeneratorDumper;
 use Symfony\Component\Routing\Matcher\Dumper\CompiledUrlMatcherDumper;
 use Symfony\Component\Routing\RouteCollection;
 
@@ -17,7 +18,20 @@ class RedisCache
 
     public function get(): ?array
     {
-        $item = $this->cache->getItem('webmaster.routing.cache');
+        $item = $this->cache->getItem('webmaster.routing.matcher.cache');
+
+        if (!$item->isHit()) {
+            return null;
+        }
+
+        $routes = $item->get();
+
+        return $routes;
+    }
+
+    public function getGeneratorRoutes(): ?array
+    {
+        $item = $this->cache->getItem('webmaster.routing.generator.cache');
 
         if (!$item->isHit()) {
             return null;
@@ -31,18 +45,26 @@ class RedisCache
     public function set(RouteCollection $routes): bool
     {
         $compiledRoutes = (new CompiledUrlMatcherDumper($routes))->getCompiledRoutes();
+        $dumpedRoutes = (new CompiledUrlGeneratorDumper($routes))->getCompiledRoutes();
 
-        $item = $this->cache->getItem('webmaster.routing.cache');
+        $matchItem = $this->cache->getItem('webmaster.routing.matcher.cache');
+        $dumpItem = $this->cache->getItem('webmaster.routing.generator.cache');
 
-        $item->set($compiledRoutes);
-        $item->expiresAfter(3600);
+        /*$matchItem->tag('webmaster.routing.cache');
+        $dumpItem->tag('webmaster.routing.cache');*/
 
-        return $this->cache->save($item);
+        $matchItem->set($compiledRoutes);
+        $dumpItem->set($dumpedRoutes);
+        $matchItem->expiresAfter(3600);
+        $dumpItem->expiresAfter(3600);
+
+        $this->cache->save($dumpItem);
+        return $this->cache->save($matchItem);
     }
 
     public function clear(): bool
     {
-        return $this->cache->clear('webmaster.routing.cache');
+        return $this->cache->clear('webmaster.routing');
     }
 
 }

@@ -4,23 +4,15 @@ declare(strict_types=1);
 
 namespace App\Domain\Sitemap;
 
-use Symfony\Component\Routing\RequestContext;
-use Webmaster\Http\Routing\RouteBuilder;
 use Symfony\Component\Routing\Generator\CompiledUrlGenerator;
 
 class Generator
 {
     private \SimpleXMLElement $template;
 
-    private CompiledUrlGenerator $urlGenerator;
-
     public function __construct(
-        private readonly RouteBuilder $router,
+        private readonly CompiledUrlGenerator $urlGenerator,
     ) {
-        $this->urlGenerator = new CompiledUrlGenerator(
-            $this->router->getRoutes(),
-            new RequestContext(),
-        );
     }
 
     public function read(): self
@@ -58,8 +50,9 @@ class Generator
         // iterate over routes
         foreach ($routes->route as $route) {
             $name = (string) $route['name'];
-            var_dump($this->urlGenerator->generate($name));
-            exit;
+            $loc = $this->urlGenerator->generate($name);
+            $url = $root->addChild('url');
+            $url->addChild('loc', htmlspecialchars($loc, ENT_QUOTES | ENT_XML1, 'UTF-8'));
         }
 
         
