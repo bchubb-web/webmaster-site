@@ -28,7 +28,7 @@ class Router
         );
     }
 
-    public function match(ServerRequestInterface $request): array
+    public function match(ServerRequestInterface $request): ServerRequestInterface
     {
         $this->timeline->startMeasure('routing', 'Routing');
 
@@ -38,6 +38,17 @@ class Router
 
         $this->timeline->stopMeasure('routing');
 
-        return $matched;
+        $target = $matched['_target'];
+        $parameters = $matched;
+
+        unset($parameters['_target']);
+        unset($parameters['_route']);
+
+        $request = $request->withAttribute('_target', $target);
+        foreach ($parameters as $key => $value) {
+            $request = $request->withAttribute($key, $value);
+        }
+
+        return $request->withAttribute('matched', $matched);
     }
 }

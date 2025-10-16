@@ -68,7 +68,8 @@ class RouteBuilder
     {
         $start = microtime(true);
         if (0 === count($this->routes)) {
-            if (null === $cached = $this->cache->get()) {
+            //if (null === $cached = $this->cache->get()) {
+            if (true) {
                 $this->build();
                 $this->timeline->addMeasure('Build routes', $start, microtime(true));
             } else {

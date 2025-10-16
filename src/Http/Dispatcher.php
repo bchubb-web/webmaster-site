@@ -11,6 +11,7 @@ use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use function array_intersect_key;
 
 class Dispatcher implements RequestHandlerInterface
 {
@@ -25,7 +26,7 @@ class Dispatcher implements RequestHandlerInterface
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $target = $this->matched['_target'];
+        $target = $request->getAttribute('_target');
 
         $instance = is_array($target)
             ? $this->container->get($target[0])
@@ -33,10 +34,28 @@ class Dispatcher implements RequestHandlerInterface
 
         $this->timeline->startMeasure('dispatch', 'Dispatching');
         if (is_array($target)) {
-            $response = $instance->{$target[1]}(...array_values($this->matched));
+
+            $reflection = new \ReflectionMethod($instance, $target[1]);
+            $parameters = $reflection->getParameters();
+            // foreach parameter pull from container
+            $args = [];
+            foreach ($parameters as $parameter) {
+                $type = $parameter->getType();
+
+                if ($type->__toString() === ServerRequestInterface::class) {
+                    $args[] = $request;
+                } elseif ($type && !$type->isBuiltin() && $this->container->has($type->getName())) {
+                    $args[] = $this->container->get($type->getName());
+                } elseif ($parameter->isDefaultValueAvailable()) {
+                    $args[] = $parameter->getDefaultValue();
+                } else {
+                    throw new \RuntimeException('Cannot resolve parameter ' . $parameter->getName());
+                }
+            }
+            $response = $instance->{$target[1]}(...$args);
         } elseif ($instance instanceof RequestHandlerInterface) {
             $response = $instance->handle($request);
-        } else {
+        } else { // Assume it's a callable, di wont work atm
             $response = $instance(...array_values($this->matched));
         }
         $this->timeline->stopMeasure('dispatch');
@@ -45,15 +64,11 @@ class Dispatcher implements RequestHandlerInterface
             $response = $this
                 ->responseFactory
                 ->createResponse(200)
+                ->withHeader('Content-Type', 'text/html')
                 ->withBody(Stream::create($response))
             ;
         }
 
         return $response;
-    }
-
-    public function setMatched(array $matched): void
-    {
-        $this->matched = $matched;
     }
 }

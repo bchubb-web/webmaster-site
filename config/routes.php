@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Application\Controllers\SitemapRequestHandler;
 use App\Application\Controllers\TestController;
 use App\Infra\Http\Controller\HomepageHandler;
+use App\Infra\Http\Controller\ThreadController;
 use Webmaster\Http\Routing\RouteBuilder;
 
 return function (RouteBuilder $router): RouteBuilder {
@@ -14,6 +15,28 @@ return function (RouteBuilder $router): RouteBuilder {
         methods: ['GET'],
         name: 'homepage'
     );
+
+    $router->add(
+        uri: '/new-thread',
+        target: [ThreadController::class, 'new'],
+        methods: ['GET', 'POST'],
+        name: 'threads.new'
+    );
+
+    $router->add(
+        uri: '/t',
+        target: [ThreadController::class, 'index'],
+        methods: ['GET'],
+        name: 'threads.index'
+    );
+
+    $router->add(
+        uri: '/t/{slug}',
+        target: [ThreadController::class, 'show'],
+        methods: ['GET'],
+        name: 'threads.show'
+    );
+
 
     $router->add(
         uri: '/sitemap.xml',

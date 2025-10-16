@@ -5,36 +5,36 @@ declare(strict_types=1);
 namespace Webmaster\Entrypoint;
 
 use Middlewares\Debugbar;
-use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Webmaster\Http\Routing\Router;
 use Webmaster\Http\Dispatcher;
 use Relay\RelayBuilder;
+use DebugBar\DataCollector\TimeDataCollector;
 
-class Web implements EntrypointInterface
+class Web extends AbstractEntrypoint
 {
     public function __construct(
-        private readonly \Webmaster\Core $core,
-        private readonly ContainerInterface $container,
         private ServerRequestInterface $request,
+        private readonly ResponseFactoryInterface $responseFactory,
         private readonly RelayBuilder $relayBuilder,
+        private readonly Dispatcher $dispatcher,
         private readonly Router $router,
+        private readonly TimeDataCollector $timeline,
     ) {
     }
 
     public function handle(): int
     {
+        $this->timeline->addMeasure('Framework boot', $_SERVER['REQUEST_TIME_FLOAT'], microtime(true));
         $this->handleRedirects();
 
-        $matched = $this->router->match($this->request);
-        $this->request = $this->request->withAttribute('matched', $matched);
+        $this->request = $this->router->match($this->request);
 
-        $dispatcher = $this->container->get(Dispatcher::class);
-        $dispatcher->setMatched($matched);
         $queue = [
             $this->container->get(Debugbar::class),
-            $dispatcher,
+            $this->dispatcher,
         ];
         $relay = $this->relayBuilder->newInstance($queue);
 
@@ -43,11 +43,6 @@ class Web implements EntrypointInterface
         $this->emit($response);
 
         return 0;
-    }
-
-    public function getCore(): \Webmaster\Core
-    {
-        return $this->core;
     }
 
     protected function handleRedirects(): void
@@ -60,8 +55,7 @@ class Web implements EntrypointInterface
             if (array_key_exists($this->request->getUri()->getPath(), $redirects)) {
                 $target = $redirects[$this->request->getUri()->getPath()];
 
-                $responseFactory = $this->container->get(\Psr\Http\Message\ResponseFactoryInterface::class);
-                $response = $responseFactory
+                $response = $this->responseFactory
                     ->createResponse(301)
                     ->withHeader('Location', $target);
 

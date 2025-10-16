@@ -12,6 +12,15 @@ return function (Configuration $config): Configuration {
                 __DIR__ . '/../views',
             ],
         ],
+        'db' => [
+            'connection' => [
+                'driver' => 'pdo_mysql',
+                'host' => 'db',
+                'dbname' => 'app_db',
+                'user' => 'app_user',
+                'password' => 'app_password',
+            ],
+        ],
     ]);
 
     return $config;

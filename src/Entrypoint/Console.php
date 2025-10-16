@@ -4,25 +4,26 @@ declare(strict_types=1);
 
 namespace Webmaster\Entrypoint;
 
-use Psr\Container\ContainerInterface;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Tools\Console\ConsoleRunner;
+use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
 
-class Console implements EntrypointInterface
+class Console extends AbstractEntrypoint
 {
     protected array $arguments = [];
     public function __construct(
-        private readonly \Webmaster\Core $core,
-        private readonly ContainerInterface $container,
+        private readonly EntityManager $entityManager,
     ) {
         $this->arguments = $_SERVER['argv'] ?? [];
     }
 
     public function handle(): int
     {
-        return 0;
-    }
+        ConsoleRunner::run(
+            new SingleManagerProvider($this->entityManager),
+            []
+        );
 
-    public function getCore(): \Webmaster\Core
-    {
-        return $this->core;
+        return 0;
     }
 }

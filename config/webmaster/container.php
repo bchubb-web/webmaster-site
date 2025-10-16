@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Application\EntityRegistry;
 use Symfony\Component\Routing\Generator\CompiledUrlGenerator;
 use Webmaster\Http\Routing\Cache\RedisCache;
 use \DebugBar\DataCollector as Collector;
@@ -35,6 +36,8 @@ return function (Configuration $config): Container {
     ;
 
     $container->addShared(Configuration::class, $config);
+
+    $container->addShared(EntityRegistry::class);
 
     // Register core services here
     twig($container);
@@ -191,21 +194,37 @@ function debug(Container $container): Container
         )
     ;
 
+    $container
+        ->addShared(
+            Collector\PDO\PDOCollector::class,
+            function (\Doctrine\DBAL\Connection $connection, Collector\TimeDataCollector $time) {
+                return new Collector\PDO\PDOCollector($connection->getNativeConnection(), $time);
+            }
+        )
+        ->addArgument(\Doctrine\DBAL\Connection::class)
+        ->addArgument(Collector\TimeDataCollector::class)
+    ;
+
     foreach ([
         Collector\MessagesCollector::class,
+        Collector\PDO\PDOCollector::class,
         Collector\TimeDataCollector::class,
         Collector\RequestDataCollector::class,
         Collector\MemoryCollector::class,
         Collector\PhpInfoCollector::class,
         Collector\ExceptionsCollector::class,
     ] as $collector) {
-        $container->addShared($collector);
+        if (!$container->has($collector)) {
+            $container->addShared($collector);
+        }
 
         $container
             ->extend(DebugBar::class)
             ->addMethodCall('addCollector', [$collector])
         ;
     }
+
+
 
 
     $container

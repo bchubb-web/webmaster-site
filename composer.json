@@ -29,7 +29,8 @@
         "relay/relay": "^3.0",
         "psr/http-server-handler": "^1.0",
         "middlewares/debugbar": "^2.2",
-        "symfony/event-dispatcher": "^7.3"
+        "symfony/event-dispatcher": "^7.3",
+        "league/flysystem": "^3.30"
     },
     "require-dev": {
         "php-debugbar/php-debugbar": "^2.2"

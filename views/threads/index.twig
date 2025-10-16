@@ -1,0 +1,20 @@
+{% extends 'template/base.twig' %}
+
+{% block title %}Threads{% endblock %}
+
+{% block body %}
+<div class="p-4 flex flex-col items-start w-full">
+    {% for thread in threads %}
+        {% include 'threads/thread/card.twig' with { thread: thread, url: url } %}
+    {% endfor %}
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('article[data-href]').forEach(function(article) {
+            article.addEventListener('click', function() {
+                window.location.href = article.getAttribute('data-href');
+            });
+        });
+    });
+</script>
+{% endblock %}

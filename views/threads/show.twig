@@ -1,0 +1,10 @@
+{% extends 'template/base.twig' %}
+
+{% block title %}Home Page{% endblock %}
+
+{% block body %}
+<div class="p-4 flex flex-col items-start w-full">
+    <h2 class="text-xl mb-4">{{ thread.title }}</h2>
+    {% include 'threads/thread/card.twig' %}
+</div>
+{% endblock %}
