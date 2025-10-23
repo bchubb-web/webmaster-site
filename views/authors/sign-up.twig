@@ -1,0 +1,36 @@
+{% extends 'template/base.twig' %}
+
+{% block title %}Start publishing now!{% endblock %}
+
+{% block body %}
+<div class="p-4 flex flex-col items-start w-full">
+    <form method="POST" class="shadow bg-neutral-100 p-6 w-full max-w-xl">
+        <h2 class="text-xl mb-4">Create an account</h2>
+        {{ include('form/input.twig', {
+            label: 'Email',
+            type: 'email',
+            id: 'author_email',
+            name: 'author[email]',
+        }, with_context: false) }}
+
+        {{ include('form/input.twig', {
+            label: 'Username',
+            type: 'text',
+            id: 'author_username',
+            name: 'author[username]',
+        }, with_context: false) }}
+
+        {{ include('form/input.twig', {
+            label: 'Password',
+            type: 'password',
+            id: 'author_password',
+            name: 'author[password]',
+        }, with_context: false) }}
+
+        <button 
+            class="bg-emerald-500 text-white px-4 py-2 rounded hover:bg-emerald-600"
+            type="submit"
+        >Create Account</button>
+    </form>
+</div>
+{% endblock %}

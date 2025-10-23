@@ -1,0 +1,9 @@
+{% extends 'template/base.twig' %}
+
+{% block title %}New article{% endblock %}
+
+{% block body %}
+<div class="p-4 flex flex-col items-start w-full">
+    {{ include('articles/article/preview-card.twig', { article: {id: 1, title: 'foo writings'} }) }}
+</div>
+{% endblock %}

@@ -1,0 +1,13 @@
+<div class="flex flex-col mb-4 w-full max-w-md">
+    <label 
+        class="text-sm"
+        for="{{ id }}"
+    >{{ label|raw }}</label>
+    <input 
+        class="bg-white border border-slate-400 h-10 p-3 mt-1 w-full rounded-xs"
+        type="{{ type }}" 
+        id="{{ id }}"
+        name="{{ name }}"
+        required
+    />
+</div>

@@ -1,0 +1,17 @@
+# split document for each image transform
+hero_image:
+  resize:
+    width: 1200
+    height: 800
+    fit: cover
+  format: webp
+  quality: 100
+
+---
+logo:
+  resize:
+    width: 300
+    height: 100
+    fit: contain
+  format: png
+  quality: 90

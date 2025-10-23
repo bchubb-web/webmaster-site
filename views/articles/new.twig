@@ -1,0 +1,39 @@
+{% extends 'template/base.twig' %}
+
+{% block title %}New article{% endblock %}
+
+{% block body %}
+<div class="p-4 flex flex-col items-start w-full">
+    <form action="{{ publishAction }}" method="POST" class="p-6 w-full max-w-2xl">
+        <div class="flex flex-col mb-4 w-full max-w-md relative">
+            <label 
+                class="text-sm absolute top-1 left-2"
+                for="article[title]"
+            >Title</label>
+            <input 
+                class="border-b border-gray-700 pt-4 p-2 mt-1 w-full"
+                type="text" 
+                name="article[title]"
+                required
+            />
+        </div>
+
+        <div class="flex flex-col mb-4 w-full max-w-md relative">
+            <label 
+                class="text-sm absolute top-1 left-2"
+                for="article[content]"
+            >Content</label>
+            <textarea 
+                class="border-b border-gray-700 pt-4 p-2 mt-1 w-full h-32 resize-none"
+                name="article[content]"
+                required
+            ></textarea>
+        </div>
+
+        <button 
+            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            type="submit"
+        >Create Thread</button>
+    </form>
+</div>
+{% endblock %}

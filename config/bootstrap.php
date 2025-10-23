@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 define('ROOT', dirname(__DIR__, 1));
 
-define('WEBMASTER', ROOT . '/src');
+define('WEBMASTER', ROOT . '/vendor/bchubb-web/webmaster');
+
+ini_set("error_log", dirname(__FILE__) . "/tmp/logs/errors.log");
 
 if (true === require_once ROOT .'/vendor/autoload.php') {
     return;

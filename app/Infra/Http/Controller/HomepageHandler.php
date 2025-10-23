@@ -6,6 +6,7 @@ namespace App\Infra\Http\Controller;
 
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
+use Webmaster\Http\Session;
 use Webmaster\View\SimpleRenderer;
 
 class HomepageHandler
@@ -13,14 +14,16 @@ class HomepageHandler
     public function __construct(
         private readonly SimpleRenderer $view,
         private readonly ResponseFactoryInterface $responseFactory,
+        private readonly Session $session,
     ) {
     }
 
     public function __invoke(): ResponseInterface
     {
-        return $this
-            ->responseFactory
-            ->createResponse(200)
+        $this->session->set('foo', 'bar');
+
+        return $this->responseFactory
+            ->createResponse()
             ->withHeader('Content-Type', 'text/html')
             ->withBody($this->view->stream('index.twig'))
         ;

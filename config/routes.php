@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Articles\ViewArticle;
+use App\Authors\Infra\Http\SignUpHandler as AuthorSignUp;
+use App\Articles\Infra\Http\ArticleController;
 use App\Application\Controllers\SitemapRequestHandler;
 use App\Application\Controllers\TestController;
 use App\Infra\Http\Controller\HomepageHandler;
@@ -11,10 +14,40 @@ use Webmaster\Http\Routing\RouteBuilder;
 return function (RouteBuilder $router): RouteBuilder {
     $router->add(
         uri: '/',
-        target: HomepageHandler::class,
+        target: [ArticleController::class, 'index'],
         methods: ['GET'],
         name: 'homepage'
     );
+
+    $router->add(
+        uri: '/authors/sign-up',
+        target: AuthorSignUp::class,
+        methods: ['GET', 'POST'],
+        name: 'authors.sign-up',
+    );
+
+    $router->add(
+        uri: '/article/{id}',
+        target: ViewArticle::class,
+        methods: ['GET'],
+        name: 'articles.view'
+    );
+
+    $router->add(
+        uri: '/publish',
+        target: [ArticleController::class, 'new'],
+        methods: ['GET'],
+        name: 'articles.new'
+    );
+
+    $router->add(
+        uri: '/publish',
+        target: [ArticleController::class, 'publish'],
+        methods: ['POST'],
+        name: 'articles.publish'
+    );
+
+    // LEGACY
 
     $router->add(
         uri: '/new-thread',

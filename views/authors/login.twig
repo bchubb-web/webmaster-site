@@ -1,0 +1,29 @@
+{% extends 'template/base.twig' %}
+
+{% block title %}Login to your account{% endblock %}
+
+{% block body %}
+<div class="p-4 flex flex-col items-start w-full">
+    <form method="POST" class="shadow bg-neutral-100 p-6 w-full max-w-xl">
+        <h2 class="text-xl mb-4">Login to your account</h2>
+        {{ include('form/input.twig', {
+            label: 'Email',
+            type: 'email',
+            id: 'author_email',
+            name: 'author[email]',
+        }, with_context: false) }}
+
+        {{ include('form/input.twig', {
+            label: 'Password',
+            type: 'password',
+            id: 'author_password',
+            name: 'author[password]',
+        }, with_context: false) }}
+
+        <button 
+            class="bg-emerald-500 text-white px-4 py-2 rounded hover:bg-emerald-600"
+            type="submit"
+        >Create Account</button>
+    </form>
+</div>
+{% endblock %}

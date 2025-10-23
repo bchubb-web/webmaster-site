@@ -1,11 +1,10 @@
 {
-    "name": "bchubb-web/webmaster",
+    "name": "bchubb-web/webmaster-site",
     "description": "Website builder, the right way",
     "type": "project",
     "autoload": {
         "psr-4": {
-            "App\\": "app/",
-            "Webmaster\\": "src/"
+            "App\\": "app/"
         }
     },
     "authors": [
@@ -19,20 +18,30 @@
         "doctrine/dbal": "^4.3",
         "doctrine/orm": "^3.5",
         "symfony/routing": "^7.3",
-        "league/container": "^5.1",
+        "league/container": "^4.0",
         "league/config": "^1.2",
-        "monolog/monolog": "^3.9",
         "nyholm/psr7": "^1.8",
-        "nyholm/psr7-server": "^1.1",
-        "symfony/cache": "^7.3",
-        "predis/predis": "^3.2",
-        "relay/relay": "^3.0",
         "psr/http-server-handler": "^1.0",
-        "middlewares/debugbar": "^2.2",
-        "symfony/event-dispatcher": "^7.3",
-        "league/flysystem": "^3.30"
+        "bchubb-web/webmaster": "dev-main"
     },
     "require-dev": {
         "php-debugbar/php-debugbar": "^2.2"
+    },
+    "minimum-stability": "dev",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/bchubb-web/webmaster.git"
+        }
+    ],
+    "scripts": {
+        "in-docker": "docker-compose exec site",
+        "console": "docker-compose exec site php bin/console.php"
+    },
+    "config": {
+        "preferred-install": {
+            "bchubb-web/webmaster": "source",
+            "*": "dist"
+        }
     }
 }
