@@ -1,0 +1,2 @@
+* * * * * root echo "[$(date)] Running" && /usr/local/bin/php /var/www/html/scripts/test.php
+

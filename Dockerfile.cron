@@ -1,0 +1,12 @@
+FROM php:8.4-cli
+
+RUN apt-get update && apt-get install -y cron
+
+COPY config/cron /etc/cron.d/cron.webmaster
+RUN chmod 0644 /etc/cron.d/cron.webmaster && \
+    crontab /etc/cron.d/cron.webmaster
+
+RUN touch /var/log/cron.log
+
+# Run cron in foreground so Docker sees it as the main process
+CMD cron -f

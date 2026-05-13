@@ -20,6 +20,13 @@ services:
     depends_on:
       - db
 
+  cron:
+    build:
+      context: .
+      dockerfile: Dockerfile.cron
+    volumes:
+      - ./:/var/www/html
+
   db:
     image: mysql:8.0
     environment:
