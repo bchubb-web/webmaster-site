@@ -45,11 +45,12 @@ class SignUpHandler implements RequestHandlerInterface
                 ->withHeader('Location', $this->urlGenerator->generate('authors.sign-in'))
             ;
         }
+
         return $this
             ->responseFactory
             ->createResponse(200)
             ->withHeader('Content-Type', 'text/html')
-            ->withBody($this->view->stream('authors/sign-up.twig'))
+            ->withBody($this->view->stream('authors/login.twig'))
         ;
     }
 }

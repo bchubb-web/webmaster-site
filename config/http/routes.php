@@ -2,19 +2,20 @@
 
 declare(strict_types=1);
 
+use App\Articles\Domain\Entity\Article;
 use App\Articles\ViewArticle;
 use App\Authors\Infra\Http\SignUpHandler as AuthorSignUp;
 use App\Articles\Infra\Http\ArticleController;
 use App\Application\Controllers\SitemapRequestHandler;
 use App\Application\Controllers\TestController;
-use App\Infra\Http\Controller\HomepageHandler;
-use App\Infra\Http\Controller\ThreadController;
+use App\Homepage\RequestHandler;
+use Doctrine\ORM\EntityManager;
 use Webmaster\Http\Routing\RouteBuilder;
 
 return function (RouteBuilder $router): RouteBuilder {
     $router->add(
         uri: '/',
-        target: [ArticleController::class, 'index'],
+        target: RequestHandler::class,
         methods: ['GET'],
         name: 'homepage'
     );
@@ -27,11 +28,13 @@ return function (RouteBuilder $router): RouteBuilder {
     );
 
     $router->add(
-        uri: '/article/{id}',
+        uri: '/article/{id<\d+>}',
         target: ViewArticle::class,
         methods: ['GET'],
         name: 'articles.view'
-    );
+    )->bind('id', function (int $value, EntityManager $em) {
+        return $em->getRepository(Article::class)->find($value);
+    });
 
     $router->add(
         uri: '/publish',
@@ -48,28 +51,6 @@ return function (RouteBuilder $router): RouteBuilder {
     );
 
     // LEGACY
-
-    $router->add(
-        uri: '/new-thread',
-        target: [ThreadController::class, 'new'],
-        methods: ['GET', 'POST'],
-        name: 'threads.new'
-    );
-
-    $router->add(
-        uri: '/t',
-        target: [ThreadController::class, 'index'],
-        methods: ['GET'],
-        name: 'threads.index'
-    );
-
-    $router->add(
-        uri: '/t/{slug}',
-        target: [ThreadController::class, 'show'],
-        methods: ['GET'],
-        name: 'threads.show'
-    );
-
 
     $router->add(
         uri: '/sitemap.xml',

@@ -6,23 +6,24 @@ namespace App\Domain\Sitemap;
 
 use Symfony\Component\Routing\Generator\CompiledUrlGenerator;
 
-class Generator
+final class Generator
 {
     private \SimpleXMLElement $template;
+
+    private const string SOURCE_SITEMAP = ROOT . '/config/http/sitemap.xml';
 
     public function __construct(
         private readonly CompiledUrlGenerator $urlGenerator,
     ) {
     }
 
-    public function read(): self
+    public function read(): \SimpleXMLElement
     {
-        if (!file_exists(ROOT . '/config/sitemap.xml')) {
+        if (!file_exists(self::SOURCE_SITEMAP)) {
             throw new \RuntimeException('Sitemap config file not found');
         }
 
-        // read from config/sitemap.xml
-        $sitemap = simplexml_load_file(ROOT . '/config/sitemap.xml');
+        $sitemap = simplexml_load_file(self::SOURCE_SITEMAP);
 
         if (!$sitemap) {
             throw new \RuntimeException('Failed to load sitemap XML');
@@ -30,12 +31,6 @@ class Generator
 
         $this->template = $sitemap;
 
-        return $this;
-    }
-
-
-    public function build(): \SimpleXMLElement
-    {
         // handle differently based on the root node
         return match ($this->template->getName()) {
             'urlset' => $this->template,
@@ -45,7 +40,7 @@ class Generator
         };
     }
 
-    protected function transformRoutes(\SimpleXMLElement $root, \SimpleXMLElement $routes): \SimpleXMLElement
+    private function transformRoutes(\SimpleXMLElement $root, \SimpleXMLElement $routes): \SimpleXMLElement
     {
         // iterate over routes
         foreach ($routes->route as $route) {

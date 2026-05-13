@@ -20,9 +20,9 @@ class Article
     #[ORM\Column(type: Types::STRING)]
     public string $title;
 
-    #[ORM\ManyToOne(targetEntity: Author::class)]
+    /*#[ORM\ManyToOne(targetEntity: Author::class)]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Author $author = null;
+    private ?Author $author = null;*/
 
     #[ORM\Column(type: Types::TEXT)]
     public string $content;

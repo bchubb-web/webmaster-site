@@ -4,6 +4,19 @@
 
 {% block body %}
 <div class="p-4 flex flex-col items-start w-full">
-    {{ include('articles/article/preview-card.twig', { article: {id: 1, title: 'foo writings'} }) }}
+    {% for article in articles %}
+        {{ include('articles/article/preview-card.twig', { article: article, url: url.generate('articles.view', {id: article.id}) }) }}
+    {% else %}
+        <p>No articles found.</p>
+    {% endfor %}
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('article[data-href]').forEach(function(article) {
+            article.addEventListener('click', function() {
+                window.location.href = article.getAttribute('data-href');
+            });
+        });
+    });
+    </script>
 </div>
 {% endblock %}

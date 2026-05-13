@@ -6,7 +6,6 @@ use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Nyholm\Psr7\Response;
 use App\Domain\Sitemap\Generator as SitemapGenerator;
 
 class SitemapRequestHandler implements RequestHandlerInterface
@@ -21,7 +20,10 @@ class SitemapRequestHandler implements RequestHandlerInterface
     {
         $response = $this->responseFactory->createResponse(200);
 
-        $map = $this->sitemap->read()->build()->asXML();
+        $map = $this->sitemap->read()->asXML();
+        if (!$map) {
+            return $this->responseFactory->createResponse(500);
+        }
         $response->getBody()->write($map);
 
         return $response->withHeader('Content-Type', 'application/xml');

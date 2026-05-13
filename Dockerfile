@@ -1,10 +1,10 @@
-# Use the official PHP image as the base image
-FROM php:8.4-apache
+# Use the official PHP-FPM image as the base image
+FROM php:8.4-fpm
 
 # Set the working directory in the container
 WORKDIR /var/www/html
 
-# Install system dependencies
+# Install system dependencies and Nginx
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -17,7 +17,9 @@ RUN apt-get update && apt-get install -y \
     libwebp-dev \
     libjpeg-dev \
     zip \
-    unzip
+    unzip \
+    nginx \
+    supervisor
     # && pecl install xdebug \
     # && docker-php-ext-enable xdebug
 
@@ -48,17 +50,43 @@ RUN mkdir -p tmp/cache
 # make cache directory writable
 RUN chown -R www-data:www-data tmp/cache
 
-# Change the document root to public
-ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
-RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+# Copy site Nginx configuration
+RUN rm /etc/nginx/sites-enabled/default
+COPY config/http/nginx.conf /etc/nginx/sites-available/default
+RUN ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
 
-# Enable mod_rewrite for URL rewriting
-RUN a2enmod rewrite
+# Create supervisor configuration to run both Nginx and PHP-FPM
+RUN mkdir -p /var/log/supervisor
+COPY <<EOF /etc/supervisor/conf.d/supervisord.conf
+[supervisord]
+nodaemon=true
+user=root
+logfile=/var/log/supervisor/supervisord.log
+pidfile=/var/run/supervisord.pid
+
+[program:php-fpm]
+command=/usr/local/sbin/php-fpm -F
+autostart=true
+autorestart=true
+priority=5
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes=0
+
+[program:nginx]
+command=/usr/sbin/nginx -g 'daemon off;'
+autostart=true
+autorestart=true
+priority=10
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes=0
+EOF
 
 # Make port 80 available to the world outside this container
 EXPOSE 80
 
-# Run apache2 in the foreground
-CMD ["apache2-foreground"]
-
+# Run supervisord to manage both PHP-FPM and Nginx
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

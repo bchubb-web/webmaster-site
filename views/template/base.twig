@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html class="">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,22 +8,8 @@
         {% block head %}
         {% endblock head %}
     </head>
-    <body class="bg-white text-zinc-900 pt-16 h-screen flex flex-col">
-        <header class="fixed h-16 top-0 left-0 w-full bg-neutral-50 p-4 shadow-b shadow-xs flex justify-center z-10">
-            <h1>Large</h1>
-        </header>
-
-        <main class="flex flex-1 overflow-hidden">
-            <aside class="w-1/5 p-4 border-gray-700">
-                {% block sidebar %}
-                {% endblock sidebar %}
-            </aside>
-            {% block body %}
-            {% endblock body %}
-        </main>
-
-        <footer>
-            <p>&copy; 2024 FOURum. All rights reserved.</p>
-        </footer>
+    <body>
+        {% block body %}
+        {% endblock body %}
     </body>
 </html>

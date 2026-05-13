@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Application\EntityRegistry;
 use App\Articles\Domain\Entity\Article;
-use App\Domain\Entity;
 use Doctrine\ORM\Configuration as OrmConfig;
 use Doctrine\ORM\EntityManager;
 use League\Config\Configuration as SiteConfig;

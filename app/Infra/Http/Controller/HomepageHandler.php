@@ -6,7 +6,7 @@ namespace App\Infra\Http\Controller;
 
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
-use Webmaster\Http\Session;
+use Webmaster\Http\Domain\Session;
 use Webmaster\View\SimpleRenderer;
 
 class HomepageHandler
@@ -20,7 +20,7 @@ class HomepageHandler
 
     public function __invoke(): ResponseInterface
     {
-        $this->session->set('foo', 'bar');
+        $this->session->foo = 'bar';
 
         return $this->responseFactory
             ->createResponse()

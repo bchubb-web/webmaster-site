@@ -4,5 +4,9 @@
 
 {% block body %}
 <div class="p-4 flex flex-col items-start w-full">
+    <h1 class="text-2xl font-bold mb-4">{{ article.title }}</h1>
+    <div class="prose max-w-none">
+        {{ article.content | raw }}
+    </div>
 </div>
 {% endblock %}

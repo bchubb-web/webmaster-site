@@ -27,7 +27,7 @@ class ArticleService implements ContainerAwareInterface
         $publishFields = [
             'title',
             'content',
-            'author_id',
+            //'author_id',
         ];
 
         $postArticle = $request->getParsedBody()['article'] ?? [];

@@ -22,7 +22,9 @@
         "league/config": "^1.2",
         "nyholm/psr7": "^1.8",
         "psr/http-server-handler": "^1.0",
-        "bchubb-web/webmaster": "dev-main"
+        "bchubb-web/webmaster": "dev-main",
+        "opis/closure": "^4.0@dev",
+        "symfony/ux-twig-component": "3.x-dev"
     },
     "require-dev": {
         "php-debugbar/php-debugbar": "^2.2"
